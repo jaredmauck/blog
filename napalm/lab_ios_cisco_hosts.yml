@@ -1,0 +1,11 @@
+all:
+  children:
+    switches:
+      hosts:
+        r1:
+        sw2:
+  vars:
+        ansible_connection: network_cli
+        ansible_network_os: ios
+        ansible_user: cisco
+        ansible_ssh_pass: cisco123

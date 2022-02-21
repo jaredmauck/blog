@@ -1,0 +1,26 @@
+---
+- hosts: switches
+  gather_facts: no
+
+  tasks:
+    - name: Get ios facts
+      cisco.ios.ios_facts:
+         
+    - name: Create directory
+      file:
+        path: /$HOME/github/blog/napalm/backups/{{ ansible_net_hostname }}
+        state: directory
+      register: output
+      
+#use master.cfg to create template
+    - name: Save backup
+      cisco.ios.ios_config:
+        backup: yes
+        backup_options:
+          filename: backup_{{ lookup('pipe', 'date +%Y_%b_%d_%T') }}_{{ ansible_net_hostname }}.cfg
+          # filename: master.cfg
+          dir_path: '{{ output.path }}'
+
+    - name: Save running-config to startup-config
+      cisco.ios.ios_config:
+        save_when: always

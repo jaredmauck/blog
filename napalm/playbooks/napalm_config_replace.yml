@@ -1,0 +1,43 @@
+---
+- name: Pre-configurations
+  hosts: switches
+  gather_facts: no
+  tasks:
+    - name: enable scp
+      cisco.ios.ios_config:
+        lines:
+        - ip scp server enable
+
+    - name: enable archive and path
+      cisco.ios.ios_config:
+        lines:
+        - path flash:archive
+        parents: archive
+
+- name: NAPALM on IOS
+  hosts: switches
+  tasks:
+    - name: Config Replace
+      napalm_install_config:
+        hostname: "{{ ansible_net_hostname }}"
+        username: "{{ ansible_user }}"
+        password: "{{ ansible_ssh_pass }}"
+        dev_os: "{{ ansible_network_os }}"
+        config_file: $HOME/github/blog/napalm/configurations/napalm-configs/{{ ansible_net_hostname }}/master.cfg #should be ran from Ansible-Github directory
+        commit_changes: True
+        replace_config: True
+        diff_file: $HOME/github/blog/napalm/configurations/napalm-diffs/{{ ansible_net_hostname }}.diff #should be ran from Ansible-Github directory
+
+- name: Post-configurations
+  hosts: switches
+  gather_facts: no
+  tasks:
+    - name: disable scp
+      cisco.ios.ios_config:
+        lines:
+        - no ip scp server enable
+    - name: disable archive feature
+      cisco.ios.ios_config:
+        lines:
+        - no archive
+        
